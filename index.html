@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tablas de Multiplicar</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #111827;
+      --accent: #22c55e;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --border: #1f2937;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Ubuntu, Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(1200px 600px at 0% 0%, #0b1028 0%, var(--bg) 40%, #0b1028 100%);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    header {
+      padding: 32px 20px 16px;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: clamp(1.8rem, 2.5vw, 2.4rem);
+      letter-spacing: 0.4px;
+    }
+    header p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      padding: 16px 20px 8px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .control {
+      background: #0b132a99;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+    }
+    .control label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    .control input[type="number"],
+    .control select {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #0b132a;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+    .control input:focus,
+    .control select:focus {
+      border-color: #334155;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      align-items: end;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #0b132a;
+      color: var(--text);
+      cursor: pointer;
+      transition: transform 0.05s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      user-select: none;
+    }
+    .btn:hover { border-color: #334155; }
+    .btn:active { transform: translateY(1px); }
+    .btn.accent {
+      background: linear-gradient(180deg, #22c55e, #16a34a);
+      border: none;
+      color: #07120c;
+      font-weight: 700;
+    }
+
+    .grid {
+      padding: 10px 20px 40px;
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      gap: 14px;
+    }
+
+    /* Column presets */
+    .cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, #0e162e, #0b132a);
+    }
+    .card-title {
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+    .badge {
+      font-size: 0.8rem;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #0b132a;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .card-body {
+      padding: 10px 14px 14px;
+    }
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .table tr + tr { border-top: 1px dashed #1f2937; }
+    .table td {
+      padding: 6px 4px;
+      vertical-align: top;
+    }
+    .expr {
+      color: var(--muted);
+    }
+    .result {
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    footer {
+      padding: 20px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+      border-top: 1px solid var(--border);
+      background: #0b132a55;
+    }
+
+    @media (max-width: 700px) {
+      .controls { grid-template-columns: 1fr 1fr; }
+      .actions { grid-column: 1 / -1; }
+    }
+    @media (max-width: 480px) {
+      .controls { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Tablas de Multiplicar</h1>
+    <p>Genera automáticamente las tablas del rango que elijas, con distribución en columnas.</p>
+  </header>
+
+  <section class="controls" aria-label="Controles de generación">
+    <div class="control">
+      <label for="desde">Desde</label>
+      <input id="desde" type="number" min="1" value="1" />
+    </div>
+    <div class="control">
+      <label for="hasta">Hasta</label>
+      <input id="hasta" type="number" min="1" value="10" />
+    </div>
+    <div class="control">
+      <label for="limite">Límite por tabla</label>
+      <input id="limite" type="number" min="5" value="12" />
+    </div>
+    <div class="control actions">
+      <button id="btnGenerar" class="btn accent">Generar</button>
+      <button id="btnImprimir" class="btn">Imprimir</button>
+    </div>
+    <div class="control">
+      <label for="columnas">Columnas</label>
+      <select id="columnas">
+        <option value="2">2 columnas</option>
+        <option value="3" selected>3 columnas</option>
+        <option value="4">4 columnas</option>
+      </select>
+    </div>
+    <div class="control">
+      <label for="mostrarCero">Incluir el 0</label>
+      <select id="mostrarCero">
+        <option value="no" selected>No</option>
+        <option value="si">Sí</option>
+      </select>
+    </div>
+  </section>
+
+  <main id="contenedor" class="grid cols-3" aria-live="polite"></main>
+
+  <footer>
+    Hecho para practicar y enseñar multiplicación de forma clara y visual.
+  </footer>
+
+  <script>
+    const desdeEl = document.getElementById('desde');
+    const hastaEl = document.getElementById('hasta');
+    const limiteEl = document.getElementById('limite');
+    const columnasEl = document.getElementById('columnas');
+    const mostrarCeroEl = document.getElementById('mostrarCero');
+    const contenedor = document.getElementById('contenedor');
+    const btnGenerar = document.getElementById('btnGenerar');
+    const btnImprimir = document.getElementById('btnImprimir');
+
+    function crearTabla(n, limite, incluirCero) {
+      const card = document.createElement('article');
+      card.className = 'card';
+
+      const header = document.createElement('div');
+      header.className = 'card-header';
+
+      const title = document.createElement('div');
+      title.className = 'card-title';
+      title.textContent = `Tabla del ${n}`;
+
+      const badge = document.createElement('div');
+      badge.className = 'badge';
+      badge.textContent = incluirCero ? `0 a ${limite}` : `1 a ${limite}`;
+
+      header.appendChild(title);
+      header.appendChild(badge);
+
+      const body = document.createElement('div');
+      body.className = 'card-body';
+
+      const table = document.createElement('table');
+      table.className = 'table';
+
+      const inicio = incluirCero ? 0 : 1;
+      for (let i = inicio; i <= limite; i++) {
+        const tr = document.createElement('tr');
+
+        const tdExpr = document.createElement('td');
+        tdExpr.className = 'expr';
+        tdExpr.textContent = `${n} × ${i}`;
+
+        const tdEqual = document.createElement('td');
+        tdEqual.className = 'expr';
+        tdEqual.textContent = '=';
+
+        const tdRes = document.createElement('td');
+        tdRes.className = 'result';
+        tdRes.textContent = n * i;
+
+        tr.appendChild(tdExpr);
+        tr.appendChild(tdEqual);
+        tr.appendChild(tdRes);
+        table.appendChild(tr);
+      }
+
+      body.appendChild(table);
+      card.appendChild(header);
+      card.appendChild(body);
+      return card;
+    }
+
+    function generar() {
+      let desde = parseInt(desdeEl.value, 10);
+      let hasta = parseInt(hastaEl.value, 10);
+      let limite = parseInt(limiteEl.value, 10);
+      const cols = parseInt(columnasEl.value, 10);
+      const incluirCero = mostrarCeroEl.value === 'si';
+
+      if (Number.isNaN(desde) || Number.isNaN(hasta) || Number.isNaN(limite)) return;
+      if (desde < 0) desde = 0;
+      if (hasta < desde) [desde, hasta] = [hasta, desde]; // intercambia si vienen invertidos
+      if (limite < 1) limite = 1;
+
+      contenedor.classList.remove('cols-2','cols-3','cols-4');
+      contenedor.classList.add(`cols-${Math.max(2, Math.min(cols, 4))}`);
+      contenedor.innerHTML = '';
+
+      for (let n = desde; n <= hasta; n++) {
+        contenedor.appendChild(crearTabla(n, limite, incluirCero));
+      }
+    }
+
+    btnGenerar.addEventListener('click', generar);
+    btnImprimir.addEventListener('click', () => window.print());
+
+    // Generación inicial por defecto
+    generar();
+  </script>
+</body>
+</html>
